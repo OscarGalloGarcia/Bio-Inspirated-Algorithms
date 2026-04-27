@@ -1,0 +1,236 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,cancel}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\spanishdecimal{.}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[lmargin=2.5cm,rmargin=2.5cm,top=2.5cm,
+bottom=2cm]{geometry}
+%Cambiar nombre del alumno
+\newcommand{\nombre}{Oscar }
+%Cambiar fecha
+\newcommand{\fecha}{2 de marzo del 2026}
+%Cambiar Titulo de la practica
+\newcommand{\tituloPractica}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%
+%%% ----> Esto dejarlo igual
+%%% Formato para la portada
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\vspace*{2\baselineskip}
+\hrule height 3pt
+\vspace*{0.5\baselineskip}
+{\Large \textbf{UNIVERSIDAD DE GUADALAJARA}}\\[0.1cm]
+{\large \textbf{CENTRO UNIVERSITARIO DE CIENCIAS EXACTAS E INGENIERÍAS}}
+\vspace*{0.5\baselineskip}
+\hrule
+\vspace*{3\baselineskip}
+\includegraphics[width=0.2\textwidth]{udg}
+\vspace*{2\baselineskip}\\
+{\large\textbf{ Algorítmos Bio-Inspirados \\ Msc. Robótica e Inteligencia Artificial}
+\vspace*{\baselineskip}\\
+{\large Algoritmo 3.2 Gradiente 1D con Reinicios \vspace{1cm} \\
+\begin{tabular}{p{4cm}p{8cm}}
+\hline \hline
+Nombre del alumno:  & Oscar Alberto Gallo García \\
+Código del alumno:  &218357704 \\
+Profesor: & Dr. Carlos Alberto Lopez Franco \\
+ \hline \hline
+\end{tabular}
+\vfill
+\fecha
+\end{center}
+\newpage
+\end{titlepage}
+
+\tableofcontents
+\newpage
+\section{Resumen} 
+
+Se implementó el algoritmo de Gradiente Descendente y Ascendente en 1D con reinicios aleatorios para encontrar el mínimo y máximo global de funciones polinomiales multimodales.\\ \\
+A diferencia del gradiente clásico con punto inicial fijo, este algoritmo reinicializa el punto de búsqueda de forma aleatoria dentro del espacio de búsqueda un total de $N$ veces. En cada reinicio se ejecuta el gradiente hasta converger a un óptimo local, y se conserva el mejor resultado encontrado entre todos los reinicios como aproximación al óptimo global.\\ \\
+Se aplicó el algoritmo a una función polinomial de grado 6 que presenta múltiples óptimos locales en el intervalo de búsqueda, lo que hace inviable garantizar la convergencia al óptimo global con un único punto de partida. Los reinicios permiten explorar distintas regiones del espacio y escapar de mínimos o máximos locales.\\ \\
+La implementación incluye una visualización dinámica que muestra en cada iteración el punto actual (marcador rojo) y el mejor óptimo encontrado hasta ese momento (estrella verde), permitiendo observar la evolución del proceso de búsqueda global.
+
+\section{Metodología}
+
+El objetivo del algoritmo es encontrar el mínimo o máximo global de una función multimodal mediante la combinación del método de gradiente con reinicios aleatorios. Se define un número de reinicios $N$ y en cada uno se inicializa el punto de búsqueda aleatoriamente dentro del intervalo de interés.\\ \\
+Se trabajó con las siguientes funciones:
+
+\[
+f(x) = x^6 - 10x^4 + 28x^2 - x
+\]
+
+\[
+g(x) = -x^6 + 10x^4 - 28x^2 + x
+\]
+
+La función $f(x)$ es un polinomio de grado 6 con múltiples mínimos locales, sobre la cual se aplica gradiente descendente para buscar el mínimo global. La función $g(x) = -f(x)$ es su negación, y sobre ella se aplica gradiente ascendente para buscar el máximo global (equivalente al mínimo de $f$).
+
+El espacio de búsqueda utilizado en ambos casos es el intervalo $[-3.0,\ 2.95]$, definido mediante una lista de valores con paso $0.05$:
+
+\[
+x\_vals = \{i \times 0.05 \mid i \in [-60,\ 59)\}
+\]
+
+\subsection{Derivada Numérica}
+
+Dado que el algoritmo requiere evaluar el gradiente $\nabla f(x)$ en cada iteración, se utilizó la fórmula de diferencias centradas para aproximar la derivada numéricamente:
+
+\[
+f'(x) \approx \frac{f(x+h) - f(x-h)}{2h}
+\]
+
+donde $h$ es un valor pequeño:
+
+\[
+h = 1 \times 10^{-5}
+\]
+
+\subsection{Algoritmo Gradiente 1D con Reinicios}
+
+El algoritmo se compone de las siguientes etapas:
+
+\begin{enumerate}
+    \item Se inicializa aleatoriamente el punto de búsqueda dentro del espacio de búsqueda:
+    \[
+    x_0 \sim \mathcal{U}(x\_vals[0],\ x\_vals[-1])
+    \]
+    Se asigna $x^* = x_0$ como el mejor punto encontrado hasta el momento.
+
+    \item Se ejecuta el bucle de gradiente desde el punto actual hasta convergencia:
+    \begin{enumerate}
+        \item Se calcula el gradiente en el punto actual:
+        \[
+        \nabla f(x) \approx \frac{f(x+h) - f(x-h)}{2h}
+        \]
+        \item Se verifica la condición de paro:
+        \[
+        |\nabla f(x)| \leq \epsilon
+        \]
+        Si se cumple, se detiene el bucle interno.
+        \item Se actualiza el punto según el modo de operación:
+        \begin{itemize}
+            \item \textbf{Gradiente Descendente}:
+            \[
+            x = x - \alpha \nabla f(x)
+            \]
+            \item \textbf{Gradiente Ascendente}:
+            \[
+            x = x + \alpha \nabla f(x)
+            \]
+        \end{itemize}
+    \end{enumerate}
+
+    \item Al converger, se compara el valor encontrado con el mejor almacenado:
+    \begin{itemize}
+        \item \textbf{Modo descendente}: si $f(x) < f(x^*)$, entonces $x^* \leftarrow x$.
+        \item \textbf{Modo ascendente}: si $f(x) > f(x^*)$, entonces $x^* \leftarrow x$.
+    \end{itemize}
+
+    \item Se reinicializa el punto aleatoriamente:
+    \[
+    x \sim \mathcal{U}(x\_vals[0],\ x\_vals[-1])
+    \]
+
+    \item Se repiten los pasos 2--4 un total de $N$ reinicios.
+
+    \item Al finalizar todos los reinicios, se retorna $x^*$ como la mejor aproximación al óptimo global.
+\end{enumerate}
+
+En esta práctica se utilizaron los siguientes parámetros:
+
+\[
+\alpha = 0.01, \qquad \epsilon = 1 \times 10^{-4}, \qquad N = 20
+\]
+
+La tasa de aprendizaje $\alpha = 0.01$ controla el tamaño del paso en cada iteración. El número de reinicios $N = 20$ determina cuántas regiones del espacio de búsqueda se exploran independientemente. A mayor $N$, mayor probabilidad de encontrar el óptimo global, a costa de mayor tiempo de cómputo.
+
+
+\section{Resultados}
+
+\subsection{Gradiente Descendente}
+
+Para la función:
+
+\[
+f(x) = x^6 - 10x^4 + 28x^2 - x
+\]
+
+con tasa de aprendizaje $\alpha = 0.01$, condición de paro $\epsilon = 1 \times 10^{-4}$ y $N = 20$ reinicios, el algoritmo explora el espacio de búsqueda $[-3.0,\ 2.95]$ desde múltiples puntos de partida aleatorios.
+
+La función $f(x)$ presenta múltiples mínimos locales en el intervalo de búsqueda. Con un único punto de partida, el gradiente descendente puede quedar atrapado en uno de estos mínimos locales. Los reinicios permiten que el algoritmo explore diferentes cuencas de atracción y seleccione el mejor resultado encontrado como aproximación al mínimo global.
+
+En cada reinicio, el algoritmo converge desde un punto aleatorio hacia el mínimo local más cercano. La estrella verde en la visualización indica el mejor $x^*$ encontrado hasta ese reinicio, el cual se actualiza únicamente cuando se halla un valor funcional menor al registrado.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/reinicios_descenso_iter_1.png}
+\caption{Primer reinicio del gradiente descendente para $f(x) = x^6 - 10x^4 + 28x^2 - x$. El punto rojo muestra dónde convergió el gradiente.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/reinicios_descenso_iter_2.png}
+\caption{Estado al quinto reinicio. Se acumulan los puntos de convergencia de reinicios anteriores.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/reinicios_descenso_resultado_final.png}
+\caption{Resultado final tras los $N = 20$ reinicios. La estrella verde indica la mejor aproximación al mínimo global de $f(x)$.}
+\end{figure}
+
+\subsection{Gradiente Ascendente}
+
+Para la función:
+
+\[
+g(x) = -x^6 + 10x^4 - 28x^2 + x
+\]
+
+con los mismos parámetros, el algoritmo aplica gradiente ascendente para buscar el máximo global. Esta función es la negación de $f(x)$, por lo que sus máximos corresponden a los mínimos de $f(x)$.
+
+Al igual que en el caso descendente, la función $g(x)$ presenta múltiples máximos locales en el intervalo de búsqueda. Los $N = 20$ reinicios permiten explorar el espacio y conservar el punto con mayor valor funcional encontrado.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/reinicios_ascenso_iter_1.png}
+\caption{Primer reinicio del gradiente ascendente para $g(x) = -x^6 + 10x^4 - 28x^2 + x$.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/reinicios_ascenso_iter_2.png}
+\caption{Estado al quinto reinicio del gradiente ascendente. Se acumulan los puntos de convergencia de reinicios anteriores.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/reinicios_ascenso_resultado_final.png}
+\caption{Resultado final tras los $N = 20$ reinicios. La estrella verde indica la mejor aproximación al máximo global de $g(x)$.}
+\end{figure}
+
+En ambos casos se observa cómo el mecanismo de reinicios permite superar las limitaciones del gradiente clásico frente a funciones multimodales, aumentando significativamente la probabilidad de alcanzar el óptimo global.
+
+
+\section{Conclusión}
+
+El algoritmo de Gradiente 1D con Reinicios extiende el método clásico de gradiente para abordar problemas de optimización donde la función objetivo presenta múltiples óptimos locales.
+\\ \\
+La inclusión de $N$ reinicios aleatorios permite explorar diferentes regiones del espacio de búsqueda de forma independiente. En cada reinicio el algoritmo converge a un óptimo local distinto, y al conservar el mejor resultado acumulado se obtiene una aproximación al óptimo global significativamente más confiable que con un único punto de partida fijo.
+\\ \\
+La derivada numérica por diferencias centradas permitió evaluar el gradiente de forma precisa sin requerir la expresión analítica de la derivada, lo que hace al método aplicable a funciones de forma general, incluyendo polinomios de alto grado como el utilizado en esta práctica.
+\\ \\
+En la práctica, los reinicios son una solución sencilla y efectiva cuando no se conoce la forma de la función y no se puede garantizar que sea convexa. En lugar de depender de un solo punto de partida que puede caer en una región desfavorable, ejecutar múltiples corridas independientes y quedarse con el mejor resultado reduce considerablemente el riesgo de reportar un mínimo local como solución final. El costo es simplemente mayor tiempo de ejecución, lo que en la mayoría de los casos es un intercambio aceptable.
+
+\end{document}

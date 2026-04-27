@@ -1,0 +1,172 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,cancel}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\spanishdecimal{.}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[lmargin=2.5cm,rmargin=2.5cm,top=2.5cm,
+bottom=2cm]{geometry}
+\newcommand{\nombre}{Oscar}
+\newcommand{\fecha}{16 de marzo del 2026}
+\newcommand{\tituloPractica}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\vspace*{2\baselineskip}
+\hrule height 3pt
+\vspace*{0.5\baselineskip}
+{\Large \textbf{UNIVERSIDAD DE GUADALAJARA}}\\[0.1cm]
+{\large \textbf{CENTRO UNIVERSITARIO DE CIENCIAS EXACTAS E INGENIER\'IAS}}
+\vspace*{0.5\baselineskip}
+\hrule
+\vspace*{3\baselineskip}
+\includegraphics[width=0.2\textwidth]{udg}
+\vspace*{2\baselineskip}\\
+{\large\textbf{ Algor\'itmos Bio-Inspirados \\ Msc. Rob\'otica e Inteligencia Artificial}
+\vspace*{\baselineskip}\\
+{\large Algoritmo 4 --- Simulated Annealing N-Dimensional \vspace{1cm} \\
+\begin{tabular}{p{4cm}p{8cm}}
+\hline \hline
+Nombre del alumno:  & Oscar Alberto Gallo Garc\'ia \\
+C\'odigo del alumno:  & 218357704 \\
+Profesor: & Dr. Carlos Alberto Lopez Franco \\
+ \hline \hline
+\end{tabular}
+\vfill
+\fecha
+\end{center}
+\newpage
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Resumen}
+
+Se implement\'o el algoritmo de Recocido Simulado (\textit{Simulated Annealing}, SA) en $n$ dimensiones para encontrar el \'optimo global de funciones multimodales. El algoritmo escapa de \'optimos locales mediante un criterio probabil\'istico controlado por una temperatura $T$ que decrece con el tiempo: al inicio acepta soluciones peores con alta probabilidad, y conforme $T \to 0$ se vuelve m\'as selectivo.\\\\
+Se probaron dos funciones 1D con m\'ultiples \'optimos locales: la funci\'on de Rastrigin (minimizaci\'on) y una suma de cuatro gaussianas (maximizaci\'on).
+
+\section{Metodolog\'ia}
+
+El SA est\'a inspirado en el recocido de metales: un material calentado se enfr\'ia lentamente hasta alcanzar su estado de m\'inima energ\'ia. En optimizaci\'on, la ``energ\'ia'' es el valor de la funci\'on objetivo.\\\\
+Se trabaj\'o con las siguientes funciones:
+
+\[
+f(x) = 10 + x^2 - 10\cos(2\pi x)
+\]
+\[
+g(x) = 2e^{-(x-1)^2} + 1.5\,e^{-(x+2)^2} + e^{-(x-3)^2} + 0.8\,e^{-(x+1)^2}
+\]
+
+$f(x)$ tiene m\'inimo global en $x=0$ y m\'ultiples m\'inimos locales peri\'odicos. $g(x)$ tiene cuatro picos de alturas $\{2.0,\,1.5,\,1.0,\,0.8\}$ con m\'aximo global en $x=1$.
+
+\subsection{Criterio de aceptaci\'on}
+
+Dado un vecino $x_{\text{nuevo}}$, se calcula:
+\[
+\Delta E = \text{signo} \cdot \bigl(f(x_{\text{nuevo}}) - f(x_{\text{actual}})\bigr)
+\]
+donde $\text{signo} = +1$ para minimizaci\'on y $-1$ para maximizaci\'on. El vecino se acepta si:
+\[
+\Delta E < 0 \quad \text{o} \quad U(0,1) < e^{-\Delta E / T}
+\]
+Cuando $T$ es grande la probabilidad $e^{-\Delta E/T}$ es alta, permitiendo explorar; cuando $T \to 0$ solo se aceptan mejoras.
+
+\subsection{Esquema de enfriamiento}
+
+Se usa enfriamiento geom\'etrico: $T \leftarrow \alpha\, T$ con $0 < \alpha < 1$ al final de cada nivel. El n\'umero de niveles es $N_T = \lceil \ln(T_{\min}/T_{\text{inicial}}) / \ln(\alpha) \rceil$, por lo que las iteraciones totales son $N_T \times \texttt{iter\_maximas}$.
+
+\subsection{Algoritmo}
+
+\begin{enumerate}
+    \item $x_0 \sim \mathcal{U}(\ell_{\min}, \ell_{\max})$, \quad $x^* = x_0$, \quad $T = T_{\text{inicial}}$.
+    \item Mientras $T > T_{\min}$, repetir \texttt{iter\_maximas} veces:
+    \begin{enumerate}
+        \item $x_{\text{nuevo}} = \text{clip}(x_{\text{actual}} + \mathcal{U}(-\delta,\delta),\ \ell_{\min},\ \ell_{\max})$
+        \item Aceptar $x_{\text{nuevo}}$ seg\'un el criterio de aceptaci\'on.
+        \item Si $x_{\text{actual}}$ mejora a $x^*$, actualizar $x^* \leftarrow x_{\text{actual}}$.
+    \end{enumerate}
+    \item $T \leftarrow \alpha \cdot T$.
+    \item Retornar $x^*$.
+\end{enumerate}
+
+Par\'ametros utilizados:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\hline\hline
+Par\'ametro & Minimizaci\'on (Rastrigin) & Maximizaci\'on (Gaussianas) \\
+\hline
+$T_{\text{inicial}}$ & 100.0 & 5.0 \\
+$T_{\min}$           & 0.01  & 0.001 \\
+$\alpha$             & 0.95  & 0.97 \\
+\texttt{iter\_maximas} & 50  & 50 \\
+\texttt{tam\_paso}   & 0.5   & 0.4 \\
+L\'imites            & $[-5.12,\ 5.12]$ & $[-5.0,\ 5.0]$ \\
+\hline\hline
+\end{tabular}
+\caption{Par\'ametros utilizados en cada ejemplo.}
+\end{table}
+
+\section{Resultados}
+
+\subsection{Minimizaci\'on --- Funci\'on de Rastrigin}
+
+$f(x)$ presenta m\'inimos locales cada unidad en el intervalo $[-5.12,\,5.12]$. El SA escapa de ellos durante la fase de alta temperatura y converge al m\'inimo global $x^* = 0$ conforme $T$ decrece.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=13cm]{figs/SA_min_T_alta.png}
+\caption{Estado inicial del SA con temperatura alta. El punto naranja es la posici\'on actual y la estrella roja el mejor encontrado. La temperatura alta permite grandes saltos en el espacio de b\'usqueda.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=13cm]{figs/SA_min_T_media.png}
+\caption{Estado intermedio con temperatura media. El algoritmo comienza a concentrarse alrededor de regiones prometedoras, aunque todav\'ia acepta ocasionalmente soluciones peores.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=13cm]{figs/SA_min_resultado_final.png}
+\caption{Resultado final de la minimizaci\'on. La estrella roja marca el m\'inimo global encontrado. La curva de temperatura muestra el enfriamiento geom\'etrico a lo largo de todas las iteraciones.}
+\end{figure}
+
+\subsection{Maximizaci\'on --- Suma de Gaussianas}
+
+$g(x)$ tiene cuatro picos de alturas $\{2.0,\,1.5,\,1.0,\,0.8\}$. El SA identifica correctamente el m\'as alto en $x^* \approx 1$, a pesar de partir de un punto aleatorio que puede estar m\'as cerca de un m\'aximo local.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=13cm]{figs/SA_max_T_alta.png}
+\caption{Estado inicial del SA para maximizaci\'on. La temperatura alta permite explorar todos los picos de la funci\'on.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=13cm]{figs/SA_max_T_media.png}
+\caption{Estado intermedio. El algoritmo ha identificado las regiones de mayor valor funcional y restringe su exploraci\'on a ellas.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=13cm]{figs/SA_max_resultado_final.png}
+\caption{Resultado final de la maximizaci\'on. La estrella roja se\~nala el m\'aximo global encontrado en $x \approx 1$.}
+\end{figure}
+
+\section{Conclusi\'on}
+
+El SA encontr\'o el \'optimo global en ambos casos partiendo de un punto aleatorio, lo que un gradiente cl\'asico no garantiza en funciones multimodales.\\\\
+La temperatura controla el balance entre exploraci\'on y explotaci\'on: alta $T$ permite saltos grandes para escapar de \'optimos locales; baja $T$ refina la soluci\'on. Elegir bien $T_{\text{inicial}}$, $\alpha$ y \texttt{iter\_maximas} determina tanto la calidad del resultado como el costo computacional.\\\\
+A diferencia del gradiente, el SA no requiere que la funci\'on sea diferenciable, lo que lo hace aplicable a un rango mucho m\'as amplio de problemas.
+
+\end{document}
