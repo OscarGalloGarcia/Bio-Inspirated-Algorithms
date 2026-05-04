@@ -1,0 +1,266 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,cancel}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\spanishdecimal{.}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[lmargin=2.5cm,rmargin=2.5cm,top=2.5cm,
+bottom=2cm]{geometry}
+\newcommand{\nombre}{Oscar}
+\newcommand{\fecha}{3 de mayo del 2026}
+\newcommand{\tituloPractica}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\vspace*{2\baselineskip}
+\hrule height 3pt
+\vspace*{0.5\baselineskip}
+{\Large \textbf{UNIVERSIDAD DE GUADALAJARA}}\\[0.1cm]
+{\large \textbf{CENTRO UNIVERSITARIO DE CIENCIAS EXACTAS E INGENIER\'IAS}}
+\vspace*{0.5\baselineskip}
+\hrule
+\vspace*{3\baselineskip}
+\includegraphics[width=0.2\textwidth]{udg}
+\vspace*{2\baselineskip}\\
+{\large\textbf{ Algor\'itmos Bio-Inspirados \\ Msc. Rob\'otica e Inteligencia Artificial}
+\vspace*{\baselineskip}\\
+{\large Algoritmo 6 --- Particle Swarm Optimization Local Best N-Dimensional \vspace{1cm} \\
+\begin{tabular}{p{4cm}p{8cm}}
+\hline \hline
+Nombre del alumno:  & Oscar Alberto Gallo Garc\'ia \\
+C\'odigo del alumno:  & 218357704 \\
+Profesor: & Dr. Carlos Alberto Lopez Franco \\
+ \hline \hline
+\end{tabular}
+\vfill
+\fecha
+\end{center}
+\newpage
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Resumen}
+
+Se implement\'o la variante \textit{local best} (lbest) del algoritmo de Optimizaci\'on por Enjambre de Part\'iculas en $n$ dimensiones. A diferencia de la variante \textit{global best} (gbest), en lbest cada part\'icula se orienta \'unicamente por el mejor valor encontrado dentro de su \textbf{vecindario local}, una subconjunto reducido del enjambre definido mediante una topolog\'ia de anillo. Esta restricci\'on en el flujo de informaci\'on preserva mayor diversidad y reduce la convergencia prematura en funciones multimodales. Se evaluaron doce casos: minimizaci\'on y maximizaci\'on en 2~dimensiones con gr\'aficas, y minimizaci\'on y maximizaci\'on en 10~dimensiones.
+
+\section{Metodolog\'ia}
+
+\subsection{Diferencia con gbest}
+
+En la variante gbest, todas las part\'iculas comparten y se atraen hacia un \'unico $\hat{\mathbf{y}}$ global. En la variante lbest, cada part\'icula $i$ tiene su propio \textit{local best} $\hat{\mathbf{y}}_i$, definido como la mejor posici\'on personal encontrada dentro de su vecindario $\mathcal{N}_i$.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\hline\hline
+Caracter\'istica & gbest & lbest \\
+\hline
+Vecindario     & enjambre completo        & subconjunto de $k$ part\'iculas \\
+$\hat{\mathbf{y}}$ & \'unico para todos   & distinto para cada part\'icula \\
+Velocidad de convergencia & r\'apida         & m\'as lenta \\
+Diversidad     & baja                     & alta \\
+Riesgo de \'optimo local & mayor            & menor \\
+\hline\hline
+\end{tabular}
+\caption{Comparaci\'on entre las variantes gbest y lbest.}
+\end{table}
+
+\subsection{Topolog\'ia de anillo}
+
+Se utiliza una topolog\'ia de \textbf{anillo} con tama\~no de vecindario $k = 3$: cada part\'icula $i$ tiene como vecinos a las part\'iculas $i-1$, $i$ y $i+1$ (con \textit{wrap-around} en los extremos):
+\[
+\mathcal{N}_i = \{(i-1)\bmod n_s,\; i,\; (i+1)\bmod n_s\}
+\]
+
+El \textit{local best} para la part\'icula $i$ es:
+\[
+\hat{\mathbf{y}}_i(t) \in \{\mathbf{y}_j(t) : j \in \mathcal{N}_i\}
+\;\Big|\;
+f\!\left(\hat{\mathbf{y}}_i(t)\right) = \min_{j \in \mathcal{N}_i} f\!\left(\mathbf{y}_j(t)\right)
+\]
+
+\subsection{Actualizaci\'on de velocidad}
+
+La ecuaci\'on de velocidad conserva la misma estructura que gbest, sustituyendo $\hat{\mathbf{y}}$ global por $\hat{\mathbf{y}}_i$ local:
+\[
+v_{ij}(t+1) = w\,v_{ij}(t)
+  + c_1\,r_{1j}(t)\bigl[y_{ij}(t) - x_{ij}(t)\bigr]
+  + c_2\,r_{2j}(t)\bigl[\hat{y}_{ij}(t) - x_{ij}(t)\bigr]
+\]
+
+La posici\'on se actualiza igual que en gbest:
+\[
+\mathbf{x}_i(t+1) = \mathbf{x}_i(t) + \mathbf{v}_i(t+1)
+\]
+
+\subsection{Algoritmo lbest}
+
+\begin{enumerate}
+    \item Inicializar el enjambre: $\mathbf{x}_i \sim \mathcal{U}(\ell_{\min},\ell_{\max})$,\quad $\mathbf{v}_i \sim \mathcal{U}(-\Delta,\Delta)$,\quad $\mathbf{y}_i = \mathbf{x}_i$.
+    \item Evaluar $f(\mathbf{y}_i)$ para toda $i$.
+    \item Repetir hasta la condici\'on de paro:
+    \begin{enumerate}
+        \item Para cada part\'icula $i$: si $f(\mathbf{x}_i) < f(\mathbf{y}_i)$, actualizar $\mathbf{y}_i \leftarrow \mathbf{x}_i$.
+        \item Para cada part\'icula $i$:
+        \begin{itemize}
+            \item Determinar $\hat{\mathbf{y}}_i \leftarrow \arg\min_{j \in \mathcal{N}_i} f(\mathbf{y}_j)$.
+            \item Actualizar $\mathbf{v}_i$ y $\mathbf{x}_i$; proyectar $\mathbf{x}_i$ al dominio $[\ell_{\min},\ell_{\max}]$.
+        \end{itemize}
+    \end{enumerate}
+    \item Retornar $\arg\min_{i}\, f(\mathbf{y}_i)$.
+\end{enumerate}
+
+\subsection{Par\'ametros}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\hline\hline
+Par\'ametro & 2D & 10D \\
+\hline
+$w$                       & 0.7  & 0.7  \\
+$c_1$                     & 1.5  & 1.5  \\
+$c_2$                     & 1.5  & 1.5  \\
+$k$ (tama\~no vecindario) & 3    & 3    \\
+$n_s$ (tama\~no enjambre) & 50   & 100  \\
+Iteraciones m\'aximas     & 200  & 1000 \\
+\hline\hline
+\end{tabular}
+\caption{Par\'ametros utilizados en todos los experimentos.}
+\end{table}
+
+\section{Resultados}
+
+\subsection{Minimizaci\'on 2D}
+
+\subsubsection{Funci\'on Esfera}
+
+M\'inimo global en $\mathbf{x}^* = (0,0)$. Mejor soluci\'on: $(-0,\;0)$,\quad $f = 2.71\times10^{-21}$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/PSO_local_min_esfera.png}
+\caption{Minimizaci\'on de la funci\'on Esfera con lbest PSO. La estrella roja indica la mejor soluci\'on del enjambre.}
+\end{figure}
+
+\subsubsection{Funci\'on de Rastrigin}
+
+M\'inimo global en $\mathbf{x}^* = (0,0)$. Mejor soluci\'on: $(-0,\;-0)$,\quad $f = 0.0$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/PSO_local_min_rastrigin.png}
+\caption{Minimizaci\'on de Rastrigin. La diversidad mantenida por la topolog\'ia de anillo ayuda a escapar de los m\'inimos locales peri\'odicos.}
+\end{figure}
+
+\subsubsection{Funci\'on de Rosenbrock}
+
+M\'inimo global en $\mathbf{x}^* = (1,1)$. Mejor soluci\'on: $(0.99962,\;0.99923)$,\quad $f = 1.49\times10^{-7}$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/PSO_local_min_rosenbrock.png}
+\caption{Minimizaci\'on de Rosenbrock. El enjambre navega el valle curvo y converge cerca del m\'inimo global.}
+\end{figure}
+
+\subsection{Maximizaci\'on 2D}
+
+\subsubsection{Esfera Negativa}
+
+M\'aximo global en $(0,0)$. Mejor soluci\'on: $(0,\;0)$,\quad $f = -8.50\times10^{-23}$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/PSO_local_max_neg_esfera.png}
+\caption{Maximizaci\'on de la esfera negativa. El enjambre converge al v\'ertice de la par\'abola invertida.}
+\end{figure}
+
+\subsubsection{Funci\'on Seno-Coseno}
+
+M\'aximo global de $1.0$. Mejor soluci\'on: $(-1.5708,\;3.1416)$,\quad $f = 1.0$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/PSO_local_max_seno_coseno.png}
+\caption{Maximizaci\'on de $\sin(x_1)\cos(x_2)$. El lbest localiza uno de los m\'aximos id\'enticos con valor exacto $f=1$.}
+\end{figure}
+
+\subsubsection{Funci\'on Easom}
+
+M\'aximo global en $(\pi,\pi)$ con $f = 1.0$. Mejor soluci\'on: $(3.1416,\;3.1416)$,\quad $f = 1.0$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/PSO_local_max_easom.png}
+\caption{Maximizaci\'on de Easom. La topolog\'ia de anillo preserva diversidad en el dominio casi plano hasta localizar el pico estrecho en $(\pi,\pi)$.}
+\end{figure}
+
+\subsection{Minimizaci\'on N-Dimensional (10D)}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lp{8.5cm}r}
+\hline\hline
+Funci\'on & Mejor soluci\'on & $f(\hat{\mathbf{y}})$ \\
+\hline
+Esfera    & $[0,\;{-0},\;{-0},\;{-0},\;0,\;0,\;0,\;0,\;{-0},\;0]$                              & $4.07\times10^{-32}$ \\[3pt]
+Rastrigin & $[0,\;0,\;{-0},\;0.995,\;{-0},\;0.995,\;0,\;1.990,\;0,\;{-0}]$                    & $5.97$ \\[3pt]
+Ackley    & $[{-0},\;{-0},\;0,\;0,\;0,\;0,\;0,\;0,\;0,\;0]$                                   & $2.89\times10^{-14}$ \\
+\hline\hline
+\end{tabular}
+\caption{Resultados de minimizaci\'on en 10 dimensiones.}
+\end{table}
+
+\subsection{Maximizaci\'on N-Dimensional (10D)}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lp{8.5cm}r}
+\hline\hline
+Funci\'on & Mejor soluci\'on & $f(\hat{\mathbf{y}})$ \\
+\hline
+$-$Esfera    & $[0,\;0,\;0,\;{-0},\;0,\;{-0},\;0,\;0,\;0,\;0]$                               & $-1.60\times10^{-32}$ \\[3pt]
+$-$Rastrigin & $[0.995,\;0,\;0,\;{-0},\;{-0},\;{-0},\;{-0.995},\;{-0},\;{-0},\;{-0}]$       & $-1.99$ \\[3pt]
+$-$Ackley    & $[{-0},\;0,\;{-0},\;{-0},\;0,\;0,\;{-0},\;{-0},\;{-0},\;0]$                  & $-1.11\times10^{-14}$ \\
+\hline\hline
+\end{tabular}
+\caption{Resultados de maximizaci\'on en 10 dimensiones.}
+\end{table}
+
+\subsection{Comparaci\'on lbest vs.\ gbest en 10D}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llrr}
+\hline\hline
+Modo & Funci\'on & gbest & lbest \\
+\hline
+Minimizaci\'on & Esfera    & $6.31\times10^{-69}$ & $4.07\times10^{-32}$ \\
+               & Rastrigin & $6.96$               & $\mathbf{5.97}$ \\
+               & Ackley    & $4.00\times10^{-15}$ & $2.89\times10^{-14}$ \\
+\hline
+Maximizaci\'on & $-$Esfera    & $-1.08\times10^{-69}$ & $-1.60\times10^{-32}$ \\
+               & $-$Rastrigin & $-5.97$               & $\mathbf{-1.99}$ \\
+               & $-$Ackley    & $-4.00\times10^{-15}$ & $-1.11\times10^{-14}$ \\
+\hline\hline
+\end{tabular}
+\caption{Comparaci\'on de $f(\hat{\mathbf{y}})$ entre las variantes gbest y lbest (mismos par\'ametros y semilla). En negrita el mejor resultado en Rastrigin, funci\'on multimodal.}
+\end{table}
+
+\section{Conclusi\'on}
+
+El lbest PSO encontr\'o el \'optimo global en las funciones unimodales (Esfera, Ackley, Rosenbrock) con precisi\'on comparable a gbest, y obtuvo un mejor resultado en Rastrigin 10D ($f=5.97$ frente a $f=6.96$ de gbest), lo que refleja la ventaja de la topolog\'ia de anillo en funciones altamente multimodales.\\\\
+La raz\'on es que en gbest la informaci\'on del mejor global se propaga instant\'aneamente a todo el enjambre, favoreciendo una convergencia r\'apida pero prematura. En lbest la informaci\'on se difunde lentamente a trav\'es de los vecinos, lo que preserva la diversidad y permite a regiones del enjambre explorar zonas distintas del espacio antes de comprometerse con un \'optimo.\\\\
+La desventaja es que lbest converge m\'as lentamente y, con los mismos par\'ametros, la precisi\'on en funciones unimodales es ligeramente menor que gbest (p.~ej.\ Esfera 10D: $4\times10^{-32}$ vs $6\times10^{-69}$). La elecci\'on entre variantes depende del problema: gbest es preferible en espacios de b\'usqueda unimodales; lbest es m\'as robusto frente a m\'ultiples \'optimos locales.
+
+\end{document}
