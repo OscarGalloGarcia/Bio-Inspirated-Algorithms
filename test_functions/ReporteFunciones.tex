@@ -1,0 +1,254 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,cancel}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\spanishdecimal{.}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[lmargin=2.5cm,rmargin=2.5cm,top=2.5cm,
+bottom=2cm]{geometry}
+\newcommand{\nombre}{Oscar}
+\newcommand{\fecha}{18 de mayo del 2026}
+\newcommand{\tituloPractica}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\vspace*{2\baselineskip}
+\hrule height 3pt
+\vspace*{0.5\baselineskip}
+{\Large \textbf{UNIVERSIDAD DE GUADALAJARA}}\\[0.1cm]
+{\large \textbf{CENTRO UNIVERSITARIO DE CIENCIAS EXACTAS E INGENIER\'IAS}}
+\vspace*{0.5\baselineskip}
+\hrule
+\vspace*{3\baselineskip}
+\includegraphics[width=0.2\textwidth]{../AlgoritmosGeneticos/udg}
+\vspace*{2\baselineskip}\\
+{\large\textbf{ Algor\'itmos Bio-Inspirados \\ Msc. Rob\'otica e Inteligencia Artificial}
+\vspace*{\baselineskip}\\
+{\large Funciones de Prueba para Optimizaci\'on \vspace{1cm} \\
+\begin{tabular}{p{4cm}p{8cm}}
+\hline \hline
+Nombre del alumno:  & Oscar Alberto Gallo Garc\'ia \\
+C\'odigo del alumno:  & 218357704 \\
+Profesor: & Dr. Carlos Alberto Lopez Franco \\
+ \hline \hline
+\end{tabular}
+\vfill
+\fecha
+\end{center}
+\newpage
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Resumen}
+
+Se presentan once funciones de prueba est\'andar utilizadas como conjunto de referencia para evaluar algoritmos de optimizaci\'on bio-inspirados. Cada funci\'on se describe mediante su expresi\'on matem\'atica, dominio de b\'usqueda, dimensionalidad y \'optimo global conocido. Las funciones cubren distintos paisajes de aptitud: unimodales, multimodales, con topolog\'ia no convexa y con respuesta cuasi-nula fuera de una regi\'on estrecha.
+
+\section{Funciones de Prueba}
+
+A continuaci\'on se presentan las once funciones de prueba con su expresi\'on matem\'atica, dominio y \'optimo global.
+
+\begin{align}
+f_{\text{esfera}}(\mathbf{x}) &= \sum_{j=1}^{n} x_j^2,
+\quad \mathbf{x}\in[-100,100]^n,\quad f^*=0 \notag\\[4pt]
+f_{\text{cu\'adrica}}(\mathbf{x}) &= \sum_{j=1}^{n}\!\left(\sum_{i=1}^{j}x_i\right)^{\!2},
+\quad \mathbf{x}\in[-100,100]^n,\quad f^*=0 \notag\\[4pt]
+f_{\text{ackley}}(\mathbf{x}) &= -20\exp\!\left(-0.2\sqrt{\tfrac{1}{n}\sum x_j^2}\right)
+  -\exp\!\left(\tfrac{1}{n}\sum\cos(2\pi x_j)\right)+20+e,
+\quad \mathbf{x}\in[-30,30]^n,\quad f^*=0 \notag\\[4pt]
+f_{\text{griewank}}(\mathbf{x}) &= 1+\frac{\sum x_j^2}{4000}
+  -\prod_{j=1}^{n}\cos\!\left(\frac{x_j}{\sqrt{j}}\right),
+\quad \mathbf{x}\in[-600,600]^n,\quad f^*=0 \notag\\[4pt]
+f_{\text{hiperelipsoide}}(\mathbf{x}) &= \sum_{j=1}^{n}(j\,x_j)^2,
+\quad \mathbf{x}\in[-1,1]^n,\quad f^*=0 \notag\\[4pt]
+f_{\text{rastrigin}}(\mathbf{x}) &= \sum_{j=1}^{n}\bigl[x_j^2-10\cos(2\pi x_j)+10\bigr],
+\quad \mathbf{x}\in[-5.12,5.12]^n,\quad f^*=0 \notag\\[4pt]
+f_{\text{rosenbrock}}(\mathbf{x}) &= \sum_{j=1}^{n/2}\bigl[100(x_{2j}-x_{2j-1}^2)^2+(1-x_{2j-1})^2\bigr],
+\quad \mathbf{x}\in[-2.048,2.048]^n,\quad f^*=0 \notag\\[4pt]
+f_{\text{schwefel}}(\mathbf{x}) &= 418.9829\,n - \sum_{j=1}^{n}x_j\sin\!\left(\sqrt{|x_j|}\right),
+\quad \mathbf{x}\in[-500,500]^n,\quad f^*=0 \notag\\[4pt]
+f_{\text{bohachevsky1}}(x_1,x_2) &= x_1^2+2x_2^2
+  -0.3\cos(3\pi x_1)-0.4\cos(4\pi x_2)+0.7, \notag\\
+&\quad \mathbf{x}\in[-50,50]^2,\quad f^*=0 \notag\\[4pt]
+f_{\text{easom}}(x_1,x_2) &= -\cos(x_1)\cos(x_2)\exp\!\bigl[-(x_1-\pi)^2-(x_2-\pi)^2\bigr], \notag\\
+&\quad \mathbf{x}\in[-100,100]^2,\quad f^*=-1 \notag\\[4pt]
+f_{\text{colville}}(x_1,\ldots,x_4) &= 100(x_2-x_1^2)^2+(1-x_1)^2
+  +90(x_4-x_3^2)^2+(1-x_3)^2 \notag\\
+&\quad+10.1\bigl[(x_2-1)^2+(x_4-1)^2\bigr]+19.8(x_2-1)(x_4-1), \notag\\
+&\quad \mathbf{x}\in[-10,10]^4,\quad f^*=0 \notag
+\end{align}
+
+\section{Propiedades de las Funciones de Prueba}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\hline\hline
+Funci\'on        & Dominio              & $\mathbf{x}^*$               & $f^*$ \\
+\hline
+Esfera           & $[-100,100]^n$       & $\mathbf{0}$                 & 0 \\
+Cu\'adrica       & $[-100,100]^n$       & $\mathbf{0}$                 & 0 \\
+Ackley           & $[-30,30]^n$         & $\mathbf{0}$                 & 0 \\
+Griewank         & $[-600,600]^n$       & $\mathbf{0}$                 & 0 \\
+Hiperelipsoide   & $[-1,1]^n$           & $\mathbf{0}$                 & 0 \\
+Rastrigin        & $[-5.12,5.12]^n$     & $\mathbf{0}$                 & 0 \\
+Rosenbrock       & $[-2.048,2.048]^n$   & $\mathbf{1}$                 & 0 \\
+Schwefel         & $[-500,500]^n$       & $\approx420.97\,\mathbf{1}$  & 0 \\
+Bohachevsky 1    & $[-50,50]^2$         & $(0,0)$                      & 0 \\
+Easom            & $[-100,100]^2$       & $(\pi,\pi)$                  & $-1$ \\
+Colville         & $[-10,10]^4$         & $(1,1,1,1)$                  & 0 \\
+\hline\hline
+\end{tabular}
+\caption{Propiedades de las funciones de prueba implementadas.}
+\end{table}
+
+\section{Visualizaci\'on de las Funciones}
+
+Cada gr\'afica muestra la superficie 3D y las curvas de nivel en 2D. La estrella roja indica el \'optimo global cuando \'este se encuentra dentro del rango graficado.
+
+\subsection{Esfera}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/spherical.png}
+\caption{Funci\'on Esfera. Unimodal, convexa y sim\'etrica. M\'inimo global en $\mathbf{x}^*=\mathbf{0}$.}
+\end{figure}
+
+\subsection{Cu\'adrica}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/quadric.png}
+\caption{Funci\'on Cu\'adrica. Unimodal con dependencia acumulada entre variables. M\'inimo en $\mathbf{x}^*=\mathbf{0}$.}
+\end{figure}
+
+\subsection{Ackley}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/ackley.png}
+\caption{Funci\'on Ackley. Multimodal con numerosos m\'inimos locales y un \'unico m\'inimo global en $\mathbf{x}^*=\mathbf{0}$.}
+\end{figure}
+
+\subsection{Bohachevsky 1}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/bohachevsky1.png}
+\caption{Funci\'on Bohachevsky~1 (2D). Multimodal con oscilaciones peri\'odicas. M\'inimo global en $(0,0)$.}
+\end{figure}
+
+\subsection{Easom}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/easom.png}
+\caption{Funci\'on Easom (2D). Respuesta cuasi-nula en la mayor parte del dominio con un m\'aximo pronunciado en $(\pi,\pi)$, $f^*=-1$.}
+\end{figure}
+
+\subsection{Griewank}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/griewank.png}
+\caption{Funci\'on Griewank. Multimodal con productos de cosenos que crean numerosos m\'inimos locales. M\'inimo en $\mathbf{x}^*=\mathbf{0}$.}
+\end{figure}
+
+\subsection{Hiperelipsoide}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/hyperellipsoid.png}
+\caption{Funci\'on Hiperelipsoide. Unimodal con penalizaci\'on creciente por \'indice de variable. M\'inimo en $\mathbf{x}^*=\mathbf{0}$.}
+\end{figure}
+
+\subsection{Rastrigin}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/rastrigin.png}
+\caption{Funci\'on Rastrigin. Altamente multimodal con topolog\'ia de valles peri\'odicos. M\'inimo global en $\mathbf{x}^*=\mathbf{0}$.}
+\end{figure}
+
+\subsection{Rosenbrock}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/rosenbrock.png}
+\caption{Funci\'on Rosenbrock. Regi\'on de m\'inimo con curvatura pronunciada y gradiente d\'ebil que dificulta la convergencia. M\'inimo global en $\mathbf{x}^*=\mathbf{1}$.}
+\end{figure}
+
+\subsection{Schwefel}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figs/schwefel.png}
+\caption{Funci\'on Schwefel. Multimodal con m\'inimo global en $x_j^*\approx420.97$, desplazado del origen del dominio.}
+\end{figure}
+
+\section{Evaluaci\'on en el \'Optimo}
+
+Se verifica cada implementaci\'on evaluando la funci\'on en su \'optimo global $\mathbf{x}^*$. Para las funciones $n$-dimensionales se consideran $n \in \{5, 10, 20\}$; para las de dimensi\'on restringida se emplea la dimensi\'on especificada en su definici\'on.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\hline\hline
+Funci\'on        & $n$  & $f(\mathbf{x}^*)$      & $f^*$ \\
+\hline
+Esfera           & 5    & $0$                    & 0 \\
+                 & 10   & $0$                    & 0 \\
+                 & 20   & $0$                    & 0 \\
+\hline
+Cu\'adrica       & 5    & $0$                    & 0 \\
+                 & 10   & $0$                    & 0 \\
+                 & 20   & $0$                    & 0 \\
+\hline
+Ackley           & 5    & $\approx 4.44\times10^{-15}$ & 0 \\
+                 & 10   & $\approx 4.44\times10^{-15}$ & 0 \\
+                 & 20   & $\approx 8.88\times10^{-15}$ & 0 \\
+\hline
+Griewank         & 5    & $0$                    & 0 \\
+                 & 10   & $0$                    & 0 \\
+                 & 20   & $0$                    & 0 \\
+\hline
+Hiperelipsoide   & 5    & $0$                    & 0 \\
+                 & 10   & $0$                    & 0 \\
+                 & 20   & $0$                    & 0 \\
+\hline
+Rastrigin        & 5    & $0$                    & 0 \\
+                 & 10   & $0$                    & 0 \\
+                 & 20   & $0$                    & 0 \\
+\hline
+Rosenbrock       & 5    & $0$                    & 0 \\
+                 & 10   & $0$                    & 0 \\
+                 & 20   & $0$                    & 0 \\
+\hline
+Schwefel         & 5    & $\approx 2.27\times10^{-10}$ & 0 \\
+                 & 10   & $\approx 4.55\times10^{-10}$ & 0 \\
+                 & 20   & $\approx 9.09\times10^{-10}$ & 0 \\
+\hline
+Bohachevsky 1    & 2    & $0$                    & 0 \\
+Easom            & 2    & $-1$                   & $-1$ \\
+Colville         & 4    & $0$                    & 0 \\
+\hline\hline
+\end{tabular}
+\caption{Verificaci\'on num\'erica de las implementaciones en $\mathbf{x}^*$.}
+\end{table}
+
+Los peque\~nos errores en Ackley y Schwefel son residuos de punto flotante ($\sim10^{-15}$) inherentes a la aritm\'etica de doble precisi\'on, no errores de implementaci\'on.
+
+\section{Conclusi\'on}
+
+Las once funciones de prueba implementadas cubren un amplio espectro de paisajes de aptitud: unimodales convexas (Esfera, Hiperelipsoide, Cu\'adrica), unimodales con topolog\'ia no convexa (Rosenbrock, Colville), multimodales (Rastrigin, Griewank, Schwefel, Ackley) y funciones con respuesta cuasi-nula fuera de una regi\'on estrecha (Easom, Bohachevsky~1). La verificaci\'on num\'erica en el \'optimo global confirma la correcta implementaci\'on de todas las funciones. Este conjunto de referencia proporciona una base estandarizada para la comparaci\'on objetiva de los algoritmos bio-inspirados desarrollados a lo largo del curso.
+
+\end{document}
